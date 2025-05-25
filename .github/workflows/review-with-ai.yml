@@ -7,6 +7,8 @@ on:
       - src/**
       - Dockerfile
       - compose.yml
+      - Gemfile
+      - Gemfile.lock
 
 jobs:
   review:
@@ -31,7 +33,9 @@ jobs:
             - src/**
             - Dockerfile
             - compose.yml
-
+            - Gemfile
+            - Gemfile.lock
+  
       - name: Test Local Action
         id: inference
         uses: actions/ai-inference@f8ee4c952b7dca7b8a4529edd04dc5cc3d49c435 # v1.0.0
