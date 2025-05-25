@@ -35,6 +35,7 @@ jobs:
         id: concat
         run: |
           rm -f prompt.txt
+          touch prompt.txt
           for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
             echo "----- $file -----" >> prompt.txt
             cat "${{ github.workspace }}/$file" >> prompt.txt
@@ -48,7 +49,7 @@ jobs:
           system-prompt: |
             あなたはプロフェッショナルなRubyエンジニア AIです。
             あなたの役割は、開発者が実装した自作RubyのWebサーバのソースコードや、その関連作業をレビューすることです。
-          prompt-file: prompt.txt
+          prompt-file: ${{ github.workspace }}/prompt.txt
 
       - name: Comment on PR
         id: comment
