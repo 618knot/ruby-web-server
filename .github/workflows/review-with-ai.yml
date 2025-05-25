@@ -37,7 +37,7 @@ jobs:
           rm -f prompt.txt
           for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
             echo "----- $file -----" >> prompt.txt
-            cat "$file" >> prompt.txt
+            cat "${{ github.workspace }}/$file" >> prompt.txt
             echo "" >> prompt.txt
           done
 
