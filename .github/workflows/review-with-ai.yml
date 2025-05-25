@@ -1,7 +1,7 @@
 # ref: https://azukiazusa.dev/blog/actions-ai-interface-github-actions/
 
-name: 'Review with AI'
-on: 
+name: "Review with AI"
+on:
   pull_request:
     paths:
       - src/**
@@ -29,29 +29,30 @@ jobs:
         id: changed-files-specific
         uses: tj-actions/changed-files@4cd184a1dd542b79cca1d4d7938e4154a6520ca7 # v46.0.0
         with:
-          files:
-            - src/**
-            - Dockerfile
-            - compose.yml
-            - Gemfile
-            - Gemfile.lock
-  
+          files: src/**,Dockerfile,compose.yml,Gemfile,Gemfile.lock
+
+      - name: Concatenate changed files
+        id: concat
+        run: |
+          rm -f prompt.txt
+          touch prompt.txt
+          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+            echo "----- $file -----" >> prompt.txt
+            cat "${{ github.workspace }}/$file" >> prompt.txt
+            echo "" >> prompt.txt
+          done
+
       - name: Test Local Action
         id: inference
         uses: actions/ai-inference@f8ee4c952b7dca7b8a4529edd04dc5cc3d49c435 # v1.0.0
-        if: steps.changed-files-specific.outputs.all_changed_files != ''
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         with:
           system-prompt: |
             あなたはプロフェッショナルなRubyエンジニア AIです。
             あなたの役割は、開発者が実装した自作RubyのWebサーバのソースコードや、その関連作業をレビューすることです。
-          # 変更されたファイルの内容をプロンプトとして渡す
-          prompt-file: "${{ env.ALL_CHANGED_FILES }}"
+          prompt-file: ${{ github.workspace }}/prompt.txt
 
       - name: Comment on PR
         id: comment
-        if: steps.changed-files-specific.outputs.all_changed_files != ''
         env:
           RESPONSE: ${{ steps.inference.outputs.response }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
